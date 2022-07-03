@@ -17,7 +17,45 @@ fetch('http://localhost:3000/api/products')
     lesProduits(objetProduits);
 })
 .catch((err)=> {
-    document.querySelector('.items').innerHTML = "<h1>Error 404 </h1>"
-    console.log("Error 404, sur les ressources de l'API:" + err);
+    document.querySelector('.items').innerHTML = "<h1>Error</h1>"
+    console.log("Error" + err);
 });
+//-------------------------------------------
+//-------------------------------------------
+// affichage des produits détaillés provenant de l'api 
+//-------------------------------------------
+function lesProduits(produit) {
+    // déclaration des différents élément provenant du HTML products 
+    let imageAlt = document.querySelector("article div.item__img");
+    let titre = document.querySelector("#title");
+    let prix = document.querySelector("#price");
+    let description = document.querySelector("#description");
+    let couleurOption = document.querySelector("#colors");
+    // boucle for
+    for (let choix of produit) {
+        // si l'id définit par l'url = un _id on récupère ses éléments pour les produits à ajouter
+        if (id == choix._id) {
+            // ajout des élements de façon dynamique
+            imageAlt.innerHTML = `<img src="${choix.imageUrl}" alt="${choix.altTxt}">`;
+            titre.textContent = `${choix.name}`;
+            prix.textContent = `${choix.price}`;
+            description.textContent = `${choix.description}`;
+            // on ajoute le prix également dans le panier (ça servira pour le compteur total)
+            articleClient.prix = `${choix.price}`;
+            // boucle pour chercher les couleurs pour chaque produit en fonction de sa clef/valeur (la logique: tableau dans un tableau = boucle dans boucle)
+            for (let couleur of choix.colors)  {
+                // ajout des balises d'option couleur avec leur valeur
+                couleurOption.innerHTML += `<option value = "${couleur}>${couleur}</option>`;
+            }
+        }
+    }
+    console.log("affichage effectué")
+};
+//-------------------------------------------
+// Choix des couleurs de façon dynamique
+//-------------------------------------------
+// Définition des variables
+
+//-------------------------------------------
+// Choix des quantités de façon dynamique
 //-------------------------------------------
