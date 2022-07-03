@@ -21,34 +21,3 @@ fetch('http://localhost:3000/api/products')
     console.log("Error 404, sur les ressources de l'API:" + err);
 });
 //-------------------------------------------
-
-
-//-------------------------------------------
-// affichage du produit provenant de l'api 
-//-------------------------------------------
-function lesProduits(produit) {
-    // déclaration des différents élément provenant du HTML products 
-    let imageAlt = document.querySelector("article div.item__img");
-    let titre = document.querySelector("#title");
-    let prix = document.querySelector("#price");
-    let description = document.querySelector("#description");
-    let couleurOption = document.querySelector("#colors");
-    // boucle for
-    for (let choix of produit) {
-        // si l'id définit par l'url = un _id on récupère ses éléments pour les produits à ajouter
-        if (id == choix._id) {
-            // ajout des élements de façon dynamique
-            imageAlt.innerHTML = `<img src="${choix.imageUrl}" alt="${choix.altTxt}">`;
-            titre.textContent = `${choix.name}`;
-            prix.textContent = `${choix.price}`;
-            description.textContent = `${choix.description}`;
-            
-            
-
-            for (let couleur of choix.colors)  {
-                couleurOption.innerHTML += `<option value = "${couleur}>${couleur}</option>`;
-            }
-        }
-    }
-    console.log("affichage effectué")
-}
