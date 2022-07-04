@@ -5,7 +5,7 @@ fetch('http://localhost:3000/api/products')
     //Réponse obtenue en json => objectProduits.
     .then((objetProduits)=> {
         // Infos en console sur ce qui est récupéré sous forme de tableau.
-        console.log(objetProduits);
+        console.table(objetProduits);
         // appel fonction affichage produits.
         lesKanaps(objetProduits);
     }) 
