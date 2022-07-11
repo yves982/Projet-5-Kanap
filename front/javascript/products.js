@@ -13,8 +13,8 @@ console.log(id);
 fetch("http://localhost:3000/api/products")
 .then((res) => res.json())
     .then((objetProduits) => {
-        // execution de la fonction lesProduits
-        lesProduits(objetProduits);
+        // execution de la fonction afficahgeProduits
+        affichageProduits(objetProduits);
     })
     .catch((err)=> {
         document.querySelector('.item').innerHTML = "<h1>Error</h1>"
@@ -30,17 +30,17 @@ articleClient._id = id;
 //-------------------------------------------
 // affichage des produits détaillés provenant de l'api 
 //-------------------------------------------
-function lesProduits(produit) {
+function affichageProduits(produit) {
     // déclaration des différents élément provenant du HTML products 
-    let imageAlt = document.querySelector("article div.item__img");
-    let titre = document.querySelector("#title");
-    let prix = document.querySelector("#price");
-    let description = document.querySelector("#description");
-    let couleurOption = document.querySelector("#colors");
+    const imageAlt = document.querySelector("article div.item__img");
+    const titre = document.querySelector("#title");
+    const prix = document.querySelector("#price");
+    const description = document.querySelector("#description");
+    const couleurOption = document.querySelector("#colors");
     // boucle for
-    for (let choix of produit) {
+    for (const choix of produit) {
         // si l'id définit par l'url = un _id on récupère ses éléments pour les produits à ajouter
-        if (id == choix._id) {
+        if (id === choix._id) {
             // ajout des élements de façon dynamique
             imageAlt.innerHTML = `<img src="${choix.imageUrl}" alt="${choix.altTxt}">`;
             titre.textContent = `${choix.name}`;
@@ -49,9 +49,9 @@ function lesProduits(produit) {
             // on ajoute le prix également dans le panier (ça servira pour le compteur total)
             articleClient.prix = `${choix.price}`;
             // boucle pour chercher les couleurs pour chaque produit en fonction de sa clef/valeur (la logique: tableau dans un tableau = boucle dans boucle)
-            for (let couleur of choix.colors)  {
+            for (const couleur of choix.colors)  {
                 // ajout des balises d'option couleur avec leur valeur
-                couleurOption.innerHTML += `<option value = "${couleur}>${couleur}</option>`;
+                couleurOption.innerHTML += `<option value="${couleur}">${couleur}</option>`;
             }
         }
     }
@@ -61,7 +61,7 @@ function lesProduits(produit) {
 // Choix des couleurs de façon dynamique
 //-------------------------------------------
 // Définition des variables
-let choixCouleur = document.querySelector("#colors");
+const choixCouleur = document.querySelector("#colors");
 //On écoute ce qu'il se passe dans #colors
 choixCouleur.addEventListener("input", (ecolors)=> {
     let couleurProduit;
@@ -78,7 +78,7 @@ choixCouleur.addEventListener("input", (ecolors)=> {
 // Choix des quantités de façon dynamique
 //-------------------------------------------
 // Définition des variables
-let choixQuantité = document.querySelector('input[id ="quantity"]');
+const choixQuantité = document.querySelector('input[id ="quantity"]');
 let quantitéProduit;
 // On écoute ce qu'il se passe dans input[name = "itemQuantity"]
 choixQuantité.addEventListener("input", (eqté)=> {
@@ -95,7 +95,7 @@ choixQuantité.addEventListener("input", (eqté)=> {
 // Condition de validation au clic via le btn "ajouter au panier"
 //-------------------------------------------
 //déclaration de la variable
-let choixProduit = document.querySelector("#addToCart");
+const choixProduit = document.querySelector("#addToCart");
 // On écoute ce qu'il se passe sur le btn #addToCart pour réaliser l'action
 choixProduit.addEventListener("click", () => {
     // conditions de validation du bouton ajouter au panier
@@ -113,7 +113,7 @@ choixProduit.addEventListener("click", () => {
         alert("Pour valider le choix de cet artcile, veuillez renseigner une couleur ainsi qu'une quantité ")
         // Si OK
     } else {
-        // Lancer panier
+        // Lancer panier (fonction à réaliser)
         Panier();
         console.log("clic effectué");
         // Effet visuel de l'ajout au panier
@@ -121,3 +121,31 @@ choixProduit.addEventListener("click", () => {
         document.querySelector("#addToCart").textContent = "Produit ajouté !";
     }
 });
+//-------------------------------------------
+// Déclaration des tableaux 
+//-------------------------------------------
+// Déclaration du tableau d'initialisation du panier
+const choixProduitClient = [];
+// Déclaration du tableau qui permet de récupérer les infos du local storage "panierStocké" à convertir en JSON
+const produitsEnregistrés = [];
+// Déclaration du tableau choix couleur / quantité non effectué  => non présent dans panier stocké 
+const produitsTemporaires = [];
+// Déclaration du tableau qui sera la concaténation entre "produitsEnregistré & produitsTemporaires"
+const produitsAValider = [];
+//-------------------------------------------
+// Fonction ajoutPremierProduit qui ajoute l'article dans un tabeau vierge 
+//-------------------------------------------
+function ajoutPremierProduit () {
+    console.log(produitsEnregistrés);
+    // if produit enregistré = null => pas été créé
+    if (produitsEnregistrés === null) {
+        // pousser le produit choisit dans choixProduitClient
+        choixProduitClient.push(articleClient);
+        console.log(articleClient);
+        //
+        return (localStorage.panierStocké = JSON.stringify(choixProduitClient));
+    }
+}
+//-------------------------------------------
+// Fonction ajoutAutreProduit qui ajoute l'article dans le tableau non vierge et fait un tri
+//-------------------------------------------
