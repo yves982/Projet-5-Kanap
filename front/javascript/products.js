@@ -149,3 +149,55 @@ function ajoutPremierProduit () {
 //-------------------------------------------
 // Fonction ajoutAutreProduit qui ajoute l'article dans le tableau non vierge et fait un tri
 //-------------------------------------------
+function ajoutAutreProduit() {
+    // vide / initialise produitAvalider pour recevoir les nouvelles données
+    produitsAValider = [];
+    // valide de produit choisit dans produitsTemporaires
+    produitsTemporaires.push(articleClient);
+    // combine produitsTemporaires et/dans produitsEnregistrés, on l'appelle produitsAValider
+    // Autre poossibilité : ProduitAValider = produitsEnregistrés.contact(produitsTemporaires);
+    produitsAValider = [...produitsEnregistrés, ...produitsTemporaires];
+    // fonction pour trier et classer les id puis les couleurs (voir : https://www.azur-web.com/astuces/javascript-trier-tableau-objet)
+    produitsAValider.sort(function triage(a,b){
+        if (a._id < b._id) return -1;
+        if (a._id > b._id) return 1;
+        if (a._id = b._id){
+            if (a.couleur < b.couleur) return -1;
+            if (a.couleur > b.couleur) return 1;
+        }
+        return 0;
+    });
+    // vide / initialise produitsTemporaires maintenant qu'il a été utilisé 
+    produitsTemporaires = [];
+    // dernière commande : Envoit produitsAValider dans le local Storage sous le nom de panierStocké de manière JSON stringifié 
+    return (localStorage.panierStocké = JSON.stringify(produitsAValider));
+}
+//-------------------------------------------
+// fonction Panier qui ajuste la qté si le produit est déjà dans le tableau, sinon rajoute ou créé une ligne de l'article si nécéssaire
+//-------------------------------------------
+function Panier() {
+    // variable qui sera ce qu'on récupère du local storage (panierStocké) que l'on a converti en JSON
+    produitsEnregistrés = JSON.stringify(localStorage.getItem("panierStocké"));
+    // si produitEnregistré existe (si des articles ont déjà été choisit et enregistré par un client)
+    if (produitsEnregistrés){
+        for (let choix of produitsEnregistrés){
+            // comparateur d'égalité des articles actuellement choisit et ceux déjà choisit
+            if (choix._id === id && choix.couleur === articleClient.couleur) {
+                // information client 
+                alert ("RAPPEL : vous avez déjà sélectionné cet article");
+                // on modifie les qté d'un produit existant dans le panier du Local storage
+                // définition de additionQuantité qui est la valeur de l'addition de l'ancienne quantité parsée et de la nouvelle parsée pour le même produit
+                let additionQuantité = parseInt(choix.quantité) + parseInt(quantitéProduit);
+                // on convertit en JSON le résultat précédent dans la zone désiré
+                choix.quantité = JSON.stringify(additionQuantité);
+                // On renvoit un nouveau panierStocké dans le local storage
+                return (localStorage.panierStocké = JSON.stringify(produitsEnregistrés));
+            }
+        }
+        // appel de la fonction ajoutAutreProduit si la boucle au dessus ne retourne rien donc n'a pas d'égalité
+        return ajoutAutreProduit();
+    }
+    // appel fonction ajoutPremierProduit si produitsEnregistré n'existe pas
+    return ajoutPremierProduit();
+}
+//-------------------------------------------
