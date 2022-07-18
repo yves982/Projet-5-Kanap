@@ -113,31 +113,31 @@ choixProduit.addEventListener("click", () => {
         alert("Pour valider le choix de cet artcile, veuillez renseigner une couleur ainsi qu'une quantité ")
         // Si OK
     } else {
-        // Lancer panier (fonction à réaliser)
-        Panier();
-        console.log("clic effectué");
-        // Effet visuel de l'ajout au panier
-        document.querySelector("#addToCart").style.color = "rgb(0, 205, 0)";
-        document.querySelector("#addToCart").textContent = "Produit ajouté !";
+     // Lancer panier (fonction à réaliser)
+     Panier();
+     console.log("clic effectué");
+     // Effet visuel de l'ajout au panier
+     document.querySelector("#addToCart").style.color = "rgb(0, 205, 0)";
+    document.querySelector("#addToCart").textContent = "Produit ajouté !";
     }
 });
 //-------------------------------------------
 // Déclaration des tableaux 
 //-------------------------------------------
 // Déclaration du tableau d'initialisation du panier
-const choixProduitClient = [];
+let choixProduitClient = [];
 // Déclaration du tableau qui permet de récupérer les infos du local storage "panierStocké" à convertir en JSON
-const produitsEnregistrés = [];
+let produitsEnregistrés = [];
 // Déclaration du tableau choix couleur / quantité non effectué  => non présent dans panier stocké 
-const produitsTemporaires = [];
-// Déclaration du tableau qui sera la concaténation entre "produitsEnregistré & produitsTemporaires"
-const produitsAValider = [];
+let produitsTemporaires = [];
+// Déclaration du tableau qui sera la concaténation entre "produitsEnregistrés & produitsTemporaires"
+let produitsAValider = [];
 //-------------------------------------------
 // Fonction ajoutPremierProduit qui ajoute l'article dans un tabeau vierge 
 //-------------------------------------------
 function ajoutPremierProduit () {
     console.log(produitsEnregistrés);
-    // if produit enregistré = null => pas été créé
+    // if produitsEnregistrés = null => pas été créé
     if (produitsEnregistrés === null) {
         // pousser le produit choisit dans choixProduitClient
         choixProduitClient.push(articleClient);
@@ -177,8 +177,8 @@ function ajoutAutreProduit() {
 //-------------------------------------------
 function Panier() {
     // variable qui sera ce qu'on récupère du local storage (panierStocké) que l'on a converti en JSON
-    produitsEnregistrés = JSON.stringify(localStorage.getItem("panierStocké"));
-    // si produitEnregistré existe (si des articles ont déjà été choisit et enregistré par un client)
+    produitsEnregistrés = JSON.parse(localStorage.getItem("panierStocké"));
+    // si produitsEnregistrés existe (si des articles ont déjà été choisit et enregistré par un client)
     if (produitsEnregistrés){
         for (let choix of produitsEnregistrés){
             // comparateur d'égalité des articles actuellement choisit et ceux déjà choisit
@@ -197,7 +197,7 @@ function Panier() {
         // appel de la fonction ajoutAutreProduit si la boucle au dessus ne retourne rien donc n'a pas d'égalité
         return ajoutAutreProduit();
     }
-    // appel fonction ajoutPremierProduit si produitsEnregistré n'existe pas
+    // appel fonction ajoutPremierProduit si produitsEnregistrés n'existe pas
     return ajoutPremierProduit();
 }
 //-------------------------------------------
