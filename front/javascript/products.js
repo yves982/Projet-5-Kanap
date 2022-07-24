@@ -142,7 +142,7 @@ function ajoutPremierProduit () {
         // pousser le produit choisit dans choixProduitClient
         choixProduitClient.push(articleClient);
         console.log(articleClient);
-        //
+        // Envoit choixProduitClient dans le local storage sous le nom de panierStocké de manière JSON stringifié
         return (localStorage.panierStocké = JSON.stringify(choixProduitClient));
     }
 }
@@ -155,7 +155,7 @@ function ajoutAutreProduit() {
     // valide de produit choisit dans produitsTemporaires
     produitsTemporaires.push(articleClient);
     // combine produitsTemporaires et/dans produitsEnregistrés, on l'appelle produitsAValider
-    // Autre poossibilité : ProduitAValider = produitsEnregistrés.contact(produitsTemporaires);
+    // Autre possibilité : ProduitAValider = produitsEnregistrés.contact(produitsTemporaires);
     produitsAValider = [...produitsEnregistrés, ...produitsTemporaires];
     // fonction pour trier et classer les id puis les couleurs (voir : https://www.azur-web.com/astuces/javascript-trier-tableau-objet)
     produitsAValider.sort(function triage(a,b){
@@ -169,7 +169,7 @@ function ajoutAutreProduit() {
     });
     // vide / initialise produitsTemporaires maintenant qu'il a été utilisé 
     produitsTemporaires = [];
-    // dernière commande : Envoit produitsAValider dans le local Storage sous le nom de panierStocké de manière JSON stringifié 
+    // Envoit produitsAValider dans le local Storage sous le nom de panierStocké de manière JSON stringifié 
     return (localStorage.panierStocké = JSON.stringify(produitsAValider));
 }
 //-------------------------------------------
