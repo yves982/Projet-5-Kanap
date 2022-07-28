@@ -18,7 +18,7 @@ fetch("http://localhost:3000/api/products")
     console.log("sur page confirmation");
 }
 //-------------------------------------------
-// Fonction détermine les conditions d'affichage des produits du panier (?)
+// Fonction détermine les conditions d'affichage des produits du panier 
 //-------------------------------------------
 function affichagePanier(index) {
     // on récupère le panier converti 
@@ -63,7 +63,7 @@ function affiche(indexé){
       <img src="${choix.image}" alt="${choix.alt}">
     </div>
     <div class="cart__item__content">
-      <div class="cart__item__content__titlePrice">
+      <div class="cart__item__content__description">
         <h2>${choix.name}</h2>
         <span>couleur : ${choix.couleur}</span>
         <p data-prix="${choix.prix}">${choix.prix} €</p>
@@ -139,7 +139,7 @@ function suppression() {
                     document.querySelector("#totalPrice").innerHTML = "0"
                     document.querySelector("h1").innerHTML = "Vous n'avez pas d'article dans votre panier";
                 }
-                // On renvoit le nouveau ppanier converti dans le local storage puis on lance la fonction
+                // On renvoit le nouveau panier converti dans le local storage puis on lance la fonction
                 localStorage.panierStocké = JSON.stringify(nouveauPanier);
                 totalProduit();
                 // On recharge la page qui s'affiche sans le produit grâce au nouveau panier

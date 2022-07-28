@@ -10,7 +10,7 @@ console.log(id);
 // Récupération des produits de l'api + traitement des données (cf script.js)
 //-------------------------------------------
 
-fetch("http://localhost:3000/api/products")
+fetch("http://localhost:3000/api/products/"+id)
 .then((res) => res.json())
     .then((objetProduits) => {
         // execution de la fonction afficahgeProduits
@@ -30,7 +30,7 @@ articleClient._id = id;
 //-------------------------------------------
 // affichage des produits détaillés provenant de l'api 
 //-------------------------------------------
-function affichageProduits(produit) {
+function affichageProduits(choix) {
     // déclaration des différents élément provenant du HTML products 
     const imageAlt = document.querySelector("article div.item__img");
     const titre = document.querySelector("#title");
@@ -38,23 +38,20 @@ function affichageProduits(produit) {
     const description = document.querySelector("#description");
     const couleurOption = document.querySelector("#colors");
     // boucle for
-    for (const choix of produit) {
         // si l'id définit par l'url = un _id on récupère ses éléments pour les produits à ajouter
-        if (id === choix._id) {
-            // ajout des élements de façon dynamique
-            imageAlt.innerHTML = `<img src="${choix.imageUrl}" alt="${choix.altTxt}">`;
-            titre.textContent = `${choix.name}`;
-            prix.textContent = `${choix.price}`;
-            description.textContent = `${choix.description}`;
-            // on ajoute le prix également dans le panier (ça servira pour le compteur total)
-            articleClient.prix = `${choix.price}`;
-            // boucle pour chercher les couleurs pour chaque produit en fonction de sa clef/valeur (la logique: tableau dans un tableau = boucle dans boucle)
-            for (const couleur of choix.colors)  {
-                // ajout des balises d'option couleur avec leur valeur
-                couleurOption.innerHTML += `<option value="${couleur}">${couleur}</option>`;
-            }
+        // ajout des élements de façon dynamique
+        imageAlt.innerHTML = `<img src="${choix.imageUrl}" alt="${choix.altTxt}">`;
+        titre.textContent = `${choix.name}`;
+        prix.textContent = `${choix.price}`;
+        description.textContent = `${choix.description}`;
+        // on ajoute le prix également dans le panier (ça servira pour le compteur total)
+        articleClient.prix = `${choix.price}`;
+        // boucle pour chercher les couleurs pour chaque produit en fonction de sa clef/valeur (la logique: tableau dans un tableau = boucle dans boucle)
+        for (const couleur of choix.colors)  {
+            // ajout des balises d'option couleur avec leur valeur
+            couleurOption.innerHTML += `<option value="${couleur}">${couleur}</option>`;
         }
-    }
+    
     console.log("affichage effectué")
 };
 //-------------------------------------------
@@ -110,7 +107,7 @@ choixProduit.addEventListener("click", () => {
 
     ) {
         // Jouer l'alerte
-        alert("Pour valider le choix de cet artcile, veuillez renseigner une couleur ainsi qu'une quantité ")
+        alert("Pour valider le choix de cet artcile, veuillez renseigner une couleur ainsi qu'une quantité d'article entre 1 et 100")
         // Si OK
     } else {
      // Lancer panier (fonction à réaliser)
@@ -138,12 +135,12 @@ let produitsAValider = [];
 function ajoutPremierProduit () {
     console.log(produitsEnregistrés);
     // if produitsEnregistrés = null => pas été créé
-    if (produitsEnregistrés === null) {
+    if (produitsEnregistrés !== null? produitsEnregistrés.length < 1: true) {
         // pousser le produit choisit dans choixProduitClient
         choixProduitClient.push(articleClient);
         console.log(articleClient);
         // Envoit choixProduitClient dans le local storage sous le nom de panierStocké de manière JSON stringifié
-        return (localStorage.panierStocké = JSON.stringify(choixProduitClient));
+        return localStorage.setItem("panierStocké",JSON.stringify(choixProduitClient)); 
     }
 }
 //-------------------------------------------
