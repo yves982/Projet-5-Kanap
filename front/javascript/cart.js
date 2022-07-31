@@ -170,3 +170,77 @@ function totalProduit() {
     // Pointer l'endroit pour afficher le prix total
     document.querySelector("#totalPrice").textContent = totalPrix;
 }
+//-------------------------------------------
+// Formulaire
+//-------------------------------------------
+// les données du client seront stockées dans ce tableau pour la commande sur page panier
+if (page.match("cart")) {
+    var contactClient = {};
+    localStorage.contactClient = JSON.stringify(contactClient);
+    // On pointe les inputs nom prénom et ville 
+    var prenom = document.querySelector("#firstName");
+    prenom.classList.add("regex_texte");
+    var nom = document.querySelector("#lastName");
+    nom.classList.add("regex_texte");
+    var ville = document.querySelector("#city");
+    ville.classList.add("regex_texte");
+    // On pointe l'input adresse
+    var adresse = document.querySelector("#address");
+    adresse.classList.add("regex_adresse");
+    // On pointe l'input email
+    var email = document.querySelector("#email");
+    adresse.classList.add("regex_email")
+    // On pointe les éléments qui ont la classe .regex_texte
+    var regexTexte = document.querySelectorAll(".regex_texte");
+    // Modification du type d'input type email en texte à cause d'un comportement non voulut vis à vis de la regex
+    document.querySelector("#email").setAttribute("type", "text");
+}
+//-------------------------------------------
+// Regex
+//-------------------------------------------
+// Début regex qui valide les caratères a-záàâäãåçéèêëíìîïñóòôöõúùûüýÿæœ
+let regexLettre =  /^[a-záàâäãåçéèêëíìîïñóòôöõúùûüýÿæœ\s-]{1,31}$/i;
+// Début regex qui valide les caratères chiffre lettre et caratères spéciaux a-z0-9áàâäãåçéèêëíìîïñóòôöõúùûüýÿæœ
+let regexChiffreLettre = /^[a-z0-9áàâäãåçéèêëíìîïñóòôöõúùûüýÿæœ\s-]{1,60}$/i;
+let regexValidEmail = /^[a-z0-9æœ.!#$%&’*+/=?^_`{|}~"(),:;<>@[\]-]{1,60}$/i;
+let regexMatchEmail = /^[a-zA-Z0-9æœ.!#$%&’*+/=?^_`{|}~"(),:;<>@[\]-]+@([\w-]+\.)+[\w-]{2,4}$/i;
+//-------------------------------------------
+// Ecoute et attribution de point (pour sécurité au clic) si ces champs sont ok d'après la regex
+//-------------------------------------------
+if (page.match("cart")) {
+    regexTexte.forEach((regexTexte) =>
+        regexTexte.addEventListener("input", (e)=> {
+            // La valeur sera la valeur de l'input dynamique
+            valeur = e.target.value;
+            // regNormal sera la valeur de la réponse regex, 0 ou -1
+            let regNormal = valeur.search(regexLettre);
+            if (regNormal === 0) {
+                contactClient.firstName = prenom.value;
+                contactClient.lastName = nom.value;
+                contactClient.city = ville.value;
+            }
+            if (
+                contactClient;city !== "" &&
+                contactClient.lastName !== "" &&
+                contactClient.firstName !== "" &&
+                regNormal === 0
+            ) {
+                contactClient.regexNormal = 3;
+            } else {
+                contactClient.regexNormal = 0;
+            }
+            localStorage.contactClient = JSON.stringify(contactClient);
+            couleurRegex(regNormal, valeur, regexTexte);
+            valideClic();
+        })
+    );
+}
+//-------------------------------------------
+// le champ écouté via la regex regexLettre fera réagir, grâce à texteInfo, la zone concernée
+//-------------------------------------------
+texteInfo(regexLettre, "#firstNameErrorMsg", prenom);
+texteInfo(regexLettre, "#lastNameErrorMsg", nom);
+texteInfo(regexLettre; "#cityErrorMsg", ville);
+//-------------------------------------------
+// 
+//-------------------------------------------
