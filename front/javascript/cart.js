@@ -220,7 +220,7 @@ if (page.match("cart")) {
                 contactClient.city = ville.value;
             }
             if (
-                contactClient;city !== "" &&
+                contactClient.city !== "" &&
                 contactClient.lastName !== "" &&
                 contactClient.firstName !== "" &&
                 regNormal === 0
@@ -240,7 +240,29 @@ if (page.match("cart")) {
 //-------------------------------------------
 texteInfo(regexLettre, "#firstNameErrorMsg", prenom);
 texteInfo(regexLettre, "#lastNameErrorMsg", nom);
-texteInfo(regexLettre; "#cityErrorMsg", ville);
+texteInfo(regexLettre, "#cityErrorMsg", ville);
 //-------------------------------------------
-// 
+// Ecoute et attribution (pour la sécurité) si ces champs sont validé d'après la Regex
+//-------------------------------------------
+if (page.match("cart")) {
+    let regexEmail = document.querySelector(".regex_email");
+    regexEmail.addEventListener("input", (e) => {
+        // La valeur sera la valeur de l'input dynamique
+        value = e.target.value;
+        let regexMatch = valeur.match(regexMatchEmail);
+        // Quand le résultat sera correct, le console.log affichera une autre réponse que nulle; regexValide sera la valeur de la réponse regex 0 ou -1
+        let regexValide = valeur.match(regexValidEmail)
+        if (regexValide === 0 && regexMatch !== null) {
+            contactClient.email = email.value;
+            contactClient.regexEmail = 1;
+        } else {
+            contactClient.regexEmail = 0;
+        }
+        localStorage.contactClient = JSON.stringify(contactClient);
+        couleurRegex(regexValide, valeur, regexEmail);
+        valideClic();
+    });
+}
+//-------------------------------------------
+// Partie Email
 //-------------------------------------------
