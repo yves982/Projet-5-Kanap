@@ -54,64 +54,64 @@ function affichagePanier(index) {
 //-------------------------------------------
 //Fonction d'affichage d'un panier (tableau)
 //-------------------------------------------
-function affiche(indexe){
-    // Déclaration et pointage de la zone d'affichage (modif dans le DOM)
-    let zoneAffichagePanier = document.querySelector("#cart__items");
-    // On créer les affichages des produits de façon dynamique via un map et introduction de dataset dans le code 
-    zoneAffichagePanier.innerHTML += indexe.map((choix) =>
-    `<article class="cart__item" data-id="${choix._id}" data-couleur="${choix.couleur}" data-quantité="${choix.quantité}"> 
-    <div class="cart__item__img">
-      <img src="${choix.image}" alt="${choix.alt}">
-    </div>
-    <div class="cart__item__content">
-      <div class="cart__item__content__description">
-        <h2>${choix.name}</h2>
-        <span>couleur : ${choix.couleur}</span>
-        <p data-prix="${choix.prix}">${choix.prix} €</p>
+function affiche(indexé) {
+    // on déclare et on pointe la zone d'affichage
+    let zonePanier = document.querySelector("#cart__items");
+    // on créait les affichages des produits du panier via un map et introduction de dataset dans le code
+    zonePanier.innerHTML += indexé.map((choix) => 
+    `<article class="cart__item" data-id="${choix._id}" data-couleur="${choix.couleur}" data-quantité="${choix.quantité}" data-prix="${choix.prix}"> 
+      <div class="cart__item__img">
+        <img src="${choix.image}" alt="${choix.alt}">
       </div>
-      <div class="cart__item__content__settings">
-        <div class="cart__item__content__settings__quantity">
-          <p>Qté : </p>
-          <input type="number" class="itemQuantity" name="itemQuantity" min="1" max="100" value="${choix.quantité}">
+      <div class="cart__item__content">
+        <div class="cart__item__content__description">
+          <h2>${choix.name}</h2>
+          <span>couleur : ${choix.couleur}</span>
+          <p data-prix="${choix.prix}">${choix.prix} €</p>
         </div>
-        <div class="cart__item__content__settings__delete">
-          <p class="deleteItem" data-id="${choix._id}" data-couleur="${choix.couleur}">Supprimer</p>
+        <div class="cart__item__content__settings">
+          <div class="cart__item__content__settings__quantity">
+            <p>Qté : </p>
+            <input type="number" class="itemQuantity" name="itemQuantity" min="1" max="100" value="${choix.quantité}">
+          </div>
+          <div class="cart__item__content__settings__delete">
+            <p class="deleteItem" data-id="${choix._id}" data-couleur="${choix.couleur}">Supprimer</p>
+          </div>
         </div>
       </div>
-    </div>
-  </article>`
-    ).join(""); // On remplace les virgules de jonctions des objets du tableau par un vide
-    // On reste à l'écoute des modifs de qté pour l'affichage & actualiser les données
+    </article>`
+      ).join(""); //on remplace les virgules de jonctions des objets du tableau par un vide
+    // reste à l'écoute des modifications de quantité pour l'affichage et actualiser les données
     totalProduit();
-}
+  }
 //-------------------------------------------
 // fonction modifQuantité on modifie dynamiquement les quantités du panier
 //-------------------------------------------
 function modifQuantité() {
     const cart = document.querySelectorAll(".cart__item");
     /* manière de regarder ce que l'on a d'affiché dynamiquement grace au dataset
-   cart.forEach((cart) => {console.log("item panier en dataset: " + " " + cart.dataset.id + " " + cart.dataset.couleur + " " + cart.dataset.quantité); }); */
-  // On écoute ce qu'il se passe dans itemQuantity de l'article concerné
-  cart.forEach((cart) => {
-    cart.addEventListener("change", (eq) => {
+     cart.forEach((cart) => {console.log("item panier en dataset: " + " " + cart.dataset.id + " " + cart.dataset.couleur + " " + cart.dataset.quantité); }); */
+    // On écoute ce qu'il se passe dans itemQuantity de l'article concerné
+    cart.forEach((cart) => {
+      cart.addEventListener("change", (eq) => {
         // vérification d'information de la valeur du clic et son positionnement dans les articles
         let panier = JSON.parse(localStorage.getItem("panierStocké"));
-        // boucle pour modifier la qté du produit du panier grâce à la nouvelle valeur
+        // boucle pour modifier la quantité du produit du panier grace à la nouvelle valeur
         for (article of panier)
-        if (
-            article._id === cart.dataset.id && 
+          if (
+            article._id === cart.dataset.id &&
             cart.dataset.couleur === article.couleur
-        ) {
+          ) {
             article.quantité = eq.target.value;
             localStorage.panierStocké = JSON.stringify(panier);
-            // on met à jour le dataset quantité 
+            // on met à jour le dataset quantité
             cart.dataset.quantité = eq.target.value;
-            // On joue la fonction pour actualiser les données
+            // on joue la fonction pour actualiser les données
             totalProduit();
-        }
+          }
+      });
     });
-  });
-}
+  }
 //-------------------------------------------
 // Fonction de suppression des articles du Panier 
 //-------------------------------------------
@@ -163,16 +163,16 @@ function totalProduit() {
     const cart = document.querySelectorAll(".cart__item");
     // pour chaque élément cart
     cart.forEach((cart) => {
-        //je récupère les quantités des produits grâce au dataset
-        totalArticle += JSON.parse(cart.dataset.quantité);
-        // je créais un opérateur pour le total produit grâce au dataset
-        totalPrix += cart.dataset.quantité * cart.dataset.prix;
+      //je récupère les quantités des produits grâce au dataset
+      totalArticle += JSON.parse(cart.dataset.quantité);
+      // je créais un opérateur pour le total produit grâce au dataset
+      totalPrix += cart.dataset.quantité * cart.dataset.prix;
     });
     // je pointe l'endroit d'affichage nombre d'article
     document.getElementById("totalQuantity").textContent = totalArticle;
     // je pointe l'endroit d'affichage du prix total
     document.getElementById("totalPrice").textContent = totalPrix;
-}
+  }
 //-------------------------------------------
 // Formulaire
 //-------------------------------------------
