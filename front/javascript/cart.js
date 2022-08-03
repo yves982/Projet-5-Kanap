@@ -27,11 +27,12 @@ function affichagePanier(index) {
     if (panier && panier.length != 0) {
         // zone de correspondance clef/valeur de l'API et du panier
         for (let choix of panier) {
+            console.log(choix)
             for (let g = 0, h = index.length; g < h; g++) {
                 if (choix._id === index[g]._id) {
                     // Création des valeurs pour l'affichage
                     choix.name = index[g].name;
-                    choix.prix = index[g].price;
+                    choix.prix = index[g].price; 
                     choix.image = index[g].imageUrl;
                     choix.description = index[g].description;
                     choix.alt = index[g].altTxt;
@@ -53,11 +54,11 @@ function affichagePanier(index) {
 //-------------------------------------------
 //Fonction d'affichage d'un panier (tableau)
 //-------------------------------------------
-function affiche(indexé){
+function affiche(indexe){
     // Déclaration et pointage de la zone d'affichage (modif dans le DOM)
     let zoneAffichagePanier = document.querySelector("#cart__items");
     // On créer les affichages des produits de façon dynamique via un map et introduction de dataset dans le code 
-    zoneAffichagePanier.innerHTML += indexé.map((choix) =>
+    zoneAffichagePanier.innerHTML += indexe.map((choix) =>
     `<article class="cart__item" data-id="${choix._id}" data-couleur="${choix.couleur}" data-quantité="${choix.quantité}"> 
     <div class="cart__item__img">
       <img src="${choix.image}" alt="${choix.alt}">
@@ -103,6 +104,8 @@ function modifQuantité() {
         ) {
             article.quantité = eq.target.value;
             localStorage.panierStocké = JSON.stringify(panier);
+            // on met à jour le dataset quantité 
+            cart.dataset.quantité = eq.target.value;
             // On joue la fonction pour actualiser les données
             totalProduit();
         }
@@ -149,26 +152,26 @@ function suppression() {
     });  
 }
 //-------------------------------------------
-// Fonction ajout nombre total produit & coût total
+// Fonction ajout nombre total produit & coût total prix à ne pas afficher dans le LocalStorage => via API 
 //-------------------------------------------
 function totalProduit() {
-    let panier = JSON.parse(localStorage.getItem("panierStocké"));
-    // Déclaration variable en trant que nombre
+    // déclaration variable en tant que nombre
     let totalArticle = 0;
-    // Déclaration variable en trant que nombre
-    let prixCombiné = 0;
-    // Déclaration variable en trant que nombre
+    // déclaration variable en tant que nombre
     let totalPrix = 0;
-    // Ajout de toutes les qtés d'articles du panier + calcul prix total
-    for (let article of panier) {
-        totalArticle += JSON.parse(article.quantité);
-        prixCombiné = JSON.parse(article.quantité) * JSON.parse(article.prix);
-        totalPrix += prixCombiné;
-    }
-    // Pointer l'endroit pour afficher le nb article 
-    document.querySelector("#totalQuantity").textContent = totalArticle;
-    // Pointer l'endroit pour afficher le prix total
-    document.querySelector("#totalPrice").textContent = totalPrix;
+    // on pointe l'élément
+    const cart = document.querySelectorAll(".cart__item");
+    // pour chaque élément cart
+    cart.forEach((cart) => {
+        //je récupère les quantités des produits grâce au dataset
+        totalArticle += JSON.parse(cart.dataset.quantité);
+        // je créais un opérateur pour le total produit grâce au dataset
+        totalPrix += cart.dataset.quantité * cart.dataset.prix;
+    });
+    // je pointe l'endroit d'affichage nombre d'article
+    document.getElementById("totalQuantity").textContent = totalArticle;
+    // je pointe l'endroit d'affichage du prix total
+    document.getElementById("totalPrice").textContent = totalPrix;
 }
 //-------------------------------------------
 // Formulaire
@@ -199,13 +202,16 @@ if (page.match("cart")) {
 // Regex
 //-------------------------------------------
 // Début regex qui valide les caratères a-záàâäãåçéèêëíìîïñóòôöõúùûüýÿæœ
+// regexLettre => pour partie infos personnelles (ligne 213)
 let regexLettre =  /^[a-záàâäãåçéèêëíìîïñóòôöõúùûüýÿæœ\s-]{1,31}$/i;
 // Début regex qui valide les caratères chiffre lettre et caratères spéciaux a-z0-9áàâäãåçéèêëíìîïñóòôöõúùûüýÿæœ
+// regexChiffreLettre => pour partie adresse (ligne 250)
 let regexChiffreLettre = /^[a-z0-9áàâäãåçéèêëíìîïñóòôöõúùûüýÿæœ\s-]{1,60}$/i;
+// regexValidEmail pour partie MAIL  (ligne 278)
 let regexValidEmail = /^[a-z0-9æœ.!#$%&’*+/=?^_`{|}~"(),:;<>@[\]-]{1,60}$/i;
-let regexMatchEmail = /^[a-zA-Z0-9æœ.!#$%&’*+/=?^_`{|}~"(),:;<>@[\]-]+@([\w-]+\.)+[\w-]{2,4}$/i;
+let regexMatchEmail = /^[a-zA-Z0-9æœ.!#$%&’*+\=?^_`{|}~"(),:;<>@[\]-]+@([\w-]+\.)+[\w-]{2,4}$/i;
 //-------------------------------------------
-// Ecoute et attribution de point (pour sécurité au clic) si ces champs sont ok d'après la regex
+// PARTIE INFOS PERSONNELLES Ecoute et attribution de point (pour sécurité au clic) si ces champs sont ok d'après la regex
 //-------------------------------------------
 if (page.match("cart")) {
     regexTexte.forEach((regexTexte) =>
@@ -242,7 +248,35 @@ texteInfo(regexLettre, "#firstNameErrorMsg", prenom);
 texteInfo(regexLettre, "#lastNameErrorMsg", nom);
 texteInfo(regexLettre, "#cityErrorMsg", ville);
 //-------------------------------------------
-// Ecoute et attribution (pour la sécurité) si ces champs sont validé d'après la Regex
+// PARTIE ADRESSE Ecoute et attribution (pour la sécurité) si ces champs sont validé d'après la Regex
+//-------------------------------------------
+if (page.match("cart")) {
+    let regexAdresse = document.querySelector(".regex_adresse");
+    regexAdresse.addEventListener("input", (e) => {
+      // valeur sera la valeur de l'input en dynamique
+      valeur = e.target.value;
+      // regNormal sera la valeur de la réponse regex, 0 ou -1
+      let regAdresse = valeur.search(regexChiffreLettre);
+      if (regAdresse == 0) {
+        contactClient.address = adresse.value;
+      }
+      if (contactClient.address !== "" && regAdresse === 0) {
+        contactClient.regexAdresse = 1;
+      } else {
+        contactClient.regexAdresse = 0;
+      }
+      localStorage.contactClient = JSON.stringify(contactClient);
+      couleurRegex(regAdresse, valeur, regexAdresse);
+      valideClic();
+    });
+}
+//------------------------------------
+// le champ écouté via la regex regexChiffreLettre fera réagir, grâce à texteInfo, la zone concernée
+//------------------------------------
+texteInfo(regexChiffreLettre, "#addressErrorMsg", adresse);
+//--------------------------------------------------------------
+//-------------------------------------------
+// PARTIE MAIL Ecoute et attribution (pour la sécurité) si ces champs sont validé d'après la Regex
 //-------------------------------------------
 if (page.match("cart")) {
     let regexEmail = document.querySelector(".regex_email");
@@ -264,5 +298,28 @@ if (page.match("cart")) {
     });
 }
 //-------------------------------------------
-// Partie Email
+// Partie texte sous champ email (message d'erreur si regex invalide ou valide ...)
 //-------------------------------------------
+if (page.match("cart")) {
+    email.addEventListener("input", (e) => {
+        // La valeur sera la valeur de l'input en dynamique
+        valeur = e.target.value;
+        let regexMatch = valeur.match(regexMatchEmail);
+        let regexValide = valeur.match(regexValidEmail);
+        // si valeur est toujours une string vide et la regex # de 0 
+        if (valeur === "" && regexMatch === null) {
+            document.querySelector("#emailErrorMsg").textContent = "Veuillez renseigner votre email.";
+            document.querySelector("#emailErrorMsg").style.color = "white";
+            // si la valeur n'est plus une string vide et la regex # de 0 
+        } else if (regexValide !== 0) {
+            document.querySelector("#emailErrorMsg").innerHTML = "Caractère non valide";
+            document.querySelector("#emailErrorMsg").style.color = "white";
+        } else if (valeur != "" && regexMatch == null) {
+            document.querySelector("#emailErrorMsg").innerHTML = "Caractère accepté. Forme email pas encore conforme";
+            document.querySelector("#emailErrorMsg").style.color = "white";
+        } else {
+            document.querySelector("#emailErrorMsg").innerHTML = "Forme email conforme.";
+            document.querySelector("#emailErrorMsg").style.color = "white";
+        }
+    });
+}
