@@ -16,8 +16,8 @@ fetch("http://localhost:3000/api/products")
     lesProduits(objetProduits);
   })
   .catch((err) => {
-    document.querySelector(".item").innerHTML = "<h1>erreur 404</h1>";
-    console.log("erreur 404, sur ressource api: " + err);
+    document.querySelector(".item").innerHTML = "<h1>Error</h1>";
+    console.log("erreur , sur ressource api: " + err);
   });
 //-------------------------------------------
 // Création d'objet articleClient
