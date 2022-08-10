@@ -9,11 +9,12 @@ console.log(id);
 //-------------------------------------------
 // Récupération des produits de l'api et traitement des données (voir script.js)
 //-------------------------------------------
-fetch("http://localhost:3000/api/products")
+fetch("http://localhost:3000/api/products/"+ id)
   .then((res) => res.json())
   .then((objetProduits) => {
+    console.log(objetProduits)
     // execution de la fontion lesProduits
-    lesProduits(objetProduits);
+    leProduit(objetProduits);
   })
   .catch((err) => {
     document.querySelector(".item").innerHTML = "<h1>Error</h1>";
@@ -29,7 +30,7 @@ articleClient._id = id;
 //-------------------------------------------
 // fonction d'affichage du produit de l'api
 //-------------------------------------------
-function lesProduits(produit) {
+function leProduit(produit) {
   // déclaration des variables pointage des éléments
   let imageAlt = document.querySelector("article div.item__img");
   let titre = document.querySelector("#title");
@@ -37,21 +38,21 @@ function lesProduits(produit) {
   let description = document.querySelector("#description");
   let couleurOption = document.querySelector("#colors");
   // boucle for pour chercher un indice
-  for (let choix of produit) {
+  
     //si id (définit par l'url) est identique à un _id d'un des produits du tableau, on récupère son indice de tableau qui sert pour les éléments produit à ajouter
-    if (id === choix._id) {
+    if (id === produit._id) {
       //ajout des éléments de manière dynamique
-      imageAlt.innerHTML = `<img src="${choix.imageUrl}" alt="${choix.altTxt}">`;
-      titre.textContent = `${choix.name}`;
-      prix.textContent = `${choix.price}`;
-      description.textContent = `${choix.description}`;
+      imageAlt.innerHTML = `<img src="${produit.imageUrl}" alt="${produit.altTxt}">`;
+      titre.textContent = `${produit.name}`;
+      prix.textContent = `${produit.price}`;
+      description.textContent = `${produit.description}`;
       // boucle pour chercher les couleurs pour chaque produit en fonction de sa clef/valeur (la logique: tableau dans un tableau = boucle dans boucle)
-      for (let couleur of choix.colors) {
+      for (let couleur of produit.colors) {
         // ajout des balises d'option couleur avec leur valeur
         couleurOption.innerHTML += `<option value="${couleur}">${couleur}</option>`;
       }
     }
-  }
+  
   console.log("affichage effectué");
 }
 //-------------------------------------------

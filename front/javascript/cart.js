@@ -306,22 +306,24 @@ if (page.match("cart")) {
     valeur = e.target.value;
     let regMatch = valeur.match(regexMatchEmail);
     let regValide = valeur.search(regexValidEmail);
+    let error = "";
     // si valeur est toujours une string vide et la regex #te de 0 (regex à -1 et le champ est vide mais pas d'erreur)
     if (valeur === "" && regMatch === null) {
-      document.querySelector("#emailErrorMsg").textContent = "Veuillez renseigner votre email.";
-      document.querySelector("#emailErrorMsg").style.color = "white";
+      error = "Veuillez renseigner votre email."
+
       // si valeur n'est plus une string vide et la regex #te de 0 (regex à -1 et le champ n'est pas vide donc il y a une erreur)
     } else if ( regValide !== 0) {
-      document.querySelector("#emailErrorMsg").innerHTML = "Caractère non valide";
-      document.querySelector("#emailErrorMsg").style.color = "white";
-      // pour le reste des cas (quand la regex ne trouve aucune erreur et est à 0 peu importe le champ car il est validé par la regex)
+      error = "Caractère non valide."
+
+       // pour le reste des cas (quand la regex ne trouve aucune erreur et est à 0 peu importe le champ car il est validé par la regex)
     } else if (valeur != "" && regMatch == null) {
-      document.querySelector("#emailErrorMsg").innerHTML = "Caratères acceptés pour ce champ. Forme email pas encore conforme";
-      document.querySelector("#emailErrorMsg").style.color = "white";
+      error = "Caratères acceptés pour ce champ. Forme email pas encore conforme."
+
     } else {
-      document.querySelector("#emailErrorMsg").innerHTML = "Forme email conforme.";
-      document.querySelector("#emailErrorMsg").style.color = "white";
+      error = "Forme email conforme."
     }
+    document.querySelector("#emailErrorMsg").textContent = error;
+    document.querySelector("#emailErrorMsg").style.color = "white";
   });
 }
 //---------------------------------------
@@ -354,19 +356,21 @@ function texteInfo(regex, pointage, zoneEcoute) {
       // Valeur de l'input dynamique
       valeur = e.target.value;
       index = valeur.search(regex);
+      let error = "";
       // Si la valeur est tjrs une string vide et la regex #te de 0 (regex à -1 et le champ est vide mais sans erreur)
       if (valeur === "" && index != 0) {
-        document.querySelector(pointage).textContent = "Veuillez renseigner ce champ.";
-        document.querySelector(pointage).style.color = "white";
+        error = "Veuillez renseigner ce champ."
+        
         // Si la valeur n'est plus une string vide et la regex #te de 0 (regex à -1 et le champ n'est pas vide donc il y a une erreur)
       } else if (valeur !== "" && index != 0) {
-        document.querySelector(pointage).innerHTML = "Reformulez cette donnée";
-        document.querySelector(pointage).style.color = "white";
+        error = "Reformulez cette donnée."
+
         // Pour le reste des cas (quand la regex ne trouve aucune erreur et est à 0 peu importe le champ car validé par la regex)
       } else {
-      document.querySelector(pointage).innerHTML = "Caratères acceptés pour ce champ.";
-      document.querySelector(pointage).style.color = "white";
+        error = "Caratères acceptés pour ce champ."
       }
+      document.querySelector(pointage).textContent = error;
+      document.querySelector(pointage).style.color = "white";
     });
   }
 }
