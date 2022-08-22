@@ -7,13 +7,13 @@ const params = new URLSearchParams(document.location.search); //console.log(docu
 const id = params.get("_id");
 console.log(id); 
 //-------------------------------------------
-// Récupération des produits de l'api et traitement des données (voir script.js)
+// Récupération des produits de l'api et d'un id spécifique
 //-------------------------------------------
 fetch("http://localhost:3000/api/products/"+ id)
   .then((res) => res.json())
   .then((objetProduits) => {
     console.log(objetProduits)
-    // execution de la fontion lesProduits
+    // execution de la fontion leProduit
     leProduit(objetProduits);
   })
   .catch((err) => {
@@ -169,7 +169,7 @@ function ajoutAutreProduit() {
   return (localStorage.panierStocké = JSON.stringify(produitsAValider));
 }
 //-------------------------------------------
-// fonction Panier qui ajuste la quantité si le produit est déja dans le tableau, sinon le rajoute si tableau il y a, ou créait le tableau avec un premier article choisi 
+// fonction Panier qui ajuste la quantité si le produit est déja dans le tableau, sinon le rajoute si tableau il y a, ou créé le tableau avec un premier article choisi 
 //-------------------------------------------
 function Panier() {
   // variable qui sera ce qu'on récupère du local storage appelé panierStocké et qu'on a convertit en JSon

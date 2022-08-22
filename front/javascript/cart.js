@@ -57,7 +57,7 @@ function affichagePanier(index) {
 function affiche(indexé) {
     // on déclare et on pointe la zone d'affichage
     let zonePanier = document.querySelector("#cart__items");
-    // on créait les affichages des produits du panier via un map et introduction de dataset dans le code
+    // on créé les affichages des produits du panier via un map et introduction de dataset dans le code
     zonePanier.innerHTML += indexé.map((choix) => 
     `<article class="cart__item" data-id="${choix._id}" data-couleur="${choix.couleur}" data-quantité="${choix.quantité}" data-prix="${choix.prix}"> 
       <div class="cart__item__img">
@@ -131,7 +131,7 @@ function suppression() {
         ) {
           // Déclaration de variable utile pour la suppression
           const num = [d];
-          // Création d'un tableau miroir (cf mutation)
+          // Création d'un tableau miroir 
           let nouveauPanier = JSON.parse(localStorage.getItem("panierStocké"));
           // Suppression de 1 élément à l'indice num
           nouveauPanier.splice(num, 1);
@@ -405,7 +405,7 @@ if (page.match("cart")) {
 //---------------------------------------
 // Function récupération des id puis mise dans un tableau
 //---------------------------------------
-// Définition du panier quine comportera que les id des produits choisi du local storage
+// Définition du panier qui ne comportera que les id des produits choisi du local storage
 let panierId = [];
 function tableauId() {
 // Appel des ressources
@@ -450,7 +450,7 @@ function envoiPaquet() {
   let somme = contactRef.regexNormal + contactRef.regexAdresse + contactRef.regexEmail;
   //  Si le panierId contient des articles et que le clic est autorisé
   if (panierId.length != 0 && somme === 5) {
-    // Envoi à la ressoource API
+    // Envoi à la ressource API
     fetch("http://localhost:3000/api/products/order", {
       method: "POST",
       headers: {
@@ -477,7 +477,7 @@ function envoiPaquet() {
   if (page.match("confirmation")) {
     sessionStorage.clear();
     localStorage.clear();
-    // Valeur du numero de coommande
+    // Valeur du numero de commande
     let numCom = new URLSearchParams(document.location.search).get("commande");
     // Merci et mise en page
     document.querySelector("#orderId").innerHTML = `<br>${numCom}<br>Merci pour votre achat`;

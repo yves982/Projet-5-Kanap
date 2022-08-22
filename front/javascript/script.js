@@ -34,4 +34,4 @@ function lesKanaps(index) {
         </article>
     </a>`;
     }
-}
+};
