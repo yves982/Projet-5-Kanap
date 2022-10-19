@@ -27,3 +27,9 @@ Aujourd’hui, celle-ci souhaiterait avoir une plateforme de e-commerce en plus 
 
 Mission : Réaliser la partie dynamique du site (Javascript). Le CSS et HTML5 étant déjà réalisé.
 L'utilisation de tout framework ou librairie JavaScript (React, Angular, Vue ou jQuery, par exemple) est interdite pour ce projet.
+
+Point intéresssant : 
+
+- Gestion dui Local Storage
+- Gestion d'un panier 
+- Confirmation d'envoi avec N° de commande
