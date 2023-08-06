@@ -2,14 +2,8 @@
 (function(){
     fetch('http://localhost:3000/api/products')
         .then((res)=> res.json())
-        .then((objetProduits)=> {
-            // appel fonction affichage produits.
-            lesKanaps(objetProduits);
-        })
-        .catch((err) => {
-            document.querySelector(".titles").innerHTML = "<h1> Error  </h1>";
-            console.error("Error" + err);
-        });
+        .then(displayArticles)
+        .catch(displayError);
     
     function generateArticleHtml(article) {
         return `<article>
@@ -23,13 +17,18 @@
         </article>`
     }
     
-    //-------------------------------------------
-    // Afficher les produits de l'api sur la page d'acceuil (index)
-    //-------------------------------------------
-    function lesKanaps(articles) {
-        let zoneArticle = document.querySelector("#items");
-        
+    function generateArticlesHtml(articles) {
         const articlesHtml = articles.map(generateArticleHtml)
-        zoneArticle.innerHTML = articlesHtml.join("\r\n")
-    };
+        return articlesHtml.join("\r\n")
+    }
+    
+    function displayArticles(articles) {
+        let zoneArticle = document.querySelector("#items");
+        zoneArticle.innerHtml = generateArticlesHtml(objetProduits);
+    }
+    
+    function displayError(err) {
+        document.querySelector(".titles").innerHTML = "<h1> Error  </h1>";
+        console.error("Error" + err);
+    }
 })()
