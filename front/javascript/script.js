@@ -1,9 +1,14 @@
 // use an IIFE to avoid global namespace pollution: YLA
+import {ErrorContext} from "./errorHelper";
+
 (function(){
+    const errCtx = new ErrorContext("products", ".titles")
+    
     fetch('http://localhost:3000/api/products')
         .then((res)=> res.json())
+        .then(generateArticlesHtml)
         .then(displayArticles)
-        .catch(displayError);
+        .catch(errCtx.displayThenLogError);
     
     function generateArticleHtml(article) {
         return `<article>
@@ -22,13 +27,8 @@
         return articlesHtml.join("\r\n")
     }
     
-    function displayArticles(articles) {
+    function displayArticles(articlesHtml) {
         let zoneArticle = document.querySelector("#items");
-        zoneArticle.innerHtml = generateArticlesHtml(objetProduits);
-    }
-    
-    function displayError(err) {
-        document.querySelector(".titles").innerHTML = "<h1> Error  </h1>";
-        console.error("Error" + err);
+        zoneArticle.innerHtml = articlesHtml
     }
 })()
