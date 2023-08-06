@@ -27,7 +27,6 @@
     // Afficher les produits de l'api sur la page d'acceuil (index)
     //-------------------------------------------
     function lesKanaps(articles) {
-        // déclaration de variable de la zone d'article
         let zoneArticle = document.querySelector("#items");
         
         const articlesHtml = articles.map(generateArticleHtml)
