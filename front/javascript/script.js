@@ -1,17 +1,11 @@
 // use an IIFE to avoid global namespace pollution: YLA
 (function(){
-    // Récupération des données de l'API.
     fetch('http://localhost:3000/api/products')
-        //Réponse en json.
         .then((res)=> res.json())
-        //Réponse obtenue en json => objectProduits.
         .then((objetProduits)=> {
-            // Infos en console sur ce qui est récupéré sous forme de tableau.
-            console.table(objetProduits);
             // appel fonction affichage produits.
             lesKanaps(objetProduits);
         })
-        // si erreur => remplacer le titre  par une erreur 404 + renvoi msg d'erreur en console.
         .catch((err) => {
             document.querySelector(".titles").innerHTML = "<h1> Error  </h1>";
             console.log("Error" + err);
