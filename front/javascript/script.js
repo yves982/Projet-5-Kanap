@@ -8,7 +8,7 @@
         })
         .catch((err) => {
             document.querySelector(".titles").innerHTML = "<h1> Error  </h1>";
-            console.log("Error" + err);
+            console.error("Error" + err);
         });
     
     //-------------------------------------------
