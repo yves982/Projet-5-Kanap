@@ -1,7 +1,7 @@
 ![alt text](https://www.jeremie-ibanez.com/img/KANAP-products.e0618ef1.png)
 
 
-
+**FORK of project Kanap** from https://www.romainb.org/
 # Kanap 
 
 Projet N°5 de la formation Dev Web Openclassrooms : Construisez un site e-commerce en JavaScript
