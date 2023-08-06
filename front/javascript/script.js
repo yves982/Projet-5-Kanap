@@ -13,7 +13,7 @@
                 ${article.description}
             </p>
             <!-- we should not access an underscore prefixed property by convention it used to mean private property -->
-            <a href="./product.html?_id=${article._id}">show more</a>
+            <a href="./product.html?_id=${article._id}">show details</a>
         </article>`
     }
     
