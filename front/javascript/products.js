@@ -2,26 +2,55 @@
 // Récupération de l'id du produit via l' URL
 //-------------------------------------------
 //la variable params récupère l'url de la page   https://qastack.fr/programming/9870512/how-to-obtain-the-query-string-from-the-current-url-with-javascript
+import {ErrorContext} from "./errorHelper";
+
 (function(){
   //console.log(document.location);  https://developer.mozilla.org/fr/docs/Web/API/Document/location
   const params = new URLSearchParams(document.location.search);
   const id = params.get("_id");
   console.log(id);
 
+  const errCtx = new ErrorContext("ressource", ".item")
+  
   fetch(`http://localhost:3000/api/products/${id}`)
       .then((res) => res.json())
-      .then(leProduit)
-      .catch((err) => {
-        document.querySelector(".item").innerHTML = "<h1>Error</h1>";
-        console.log("erreur , sur ressource api: " + err);
-      });
+      .then(generateProductHtml)
+      .then(renderProduct)
+      .catch(errCtx.displayThenLogError);
 
-  let articleClient = {};
+  let articleClient = {
+    constructor(onColorChanged, onQuantityChanged) {
+      this.onColorChanged = onColorChanged
+      this.onQuantityChanged = onQuantityChanged
+    },
+    
+    changeColor(newColor) {
+      this.color = newColor
+      this.onColorChanged?.call(this, newColor)
+    },
+    changeQuantity(newQuantity) {
+      this.quantity = newQuantity
+      this.onQuantityChanged?.call(this, newQuantity)
+    },
+    
+    cantAddToBasket() {
+      const isUnavailable = this.quantité < 1
+      const isOverbought = isUnavailable || articleClient.quantité > 100
+      const hasNoQuantity = articleClient.quantité === undefined
+      const hasNoColor = articleClient.couleur === "" || articleClient.couleur === undefined
+      
+      return  isUnavailable || isOverbought || hasNoQuantity || hasNoColor;
+    }
+    
+  };
   articleClient._id = id;
-//-------------------------------------------
-// fonction d'affichage du produit de l'api
-//-------------------------------------------
-  function leProduit(produit) {
+  
+  function renderProduct(productHtml) {
+    document.querySelector("section.item").innerHTML = productHtml
+    console.log("affichage effectué");
+  }
+  
+  function generateProductHtml(produit) {
     // to log objects, use JSON.stringify
     // to log anything don't break your logic flow : put logs close to the code they relate to,
     // here in redering logic.
@@ -38,7 +67,7 @@
     
     // do not update the dom item by item, replace a block : less rerenders => more reactive UI
     // especially if your list of items is lengthy (ok we'll probably paginate the results, still).
-    document.querySelector("section.item").innerHTML = `<article>
+    return `<article>
             <div class="item__img">
                 <img src="${produit.imageUrl}" alt="${produit.altTxt}">
             </div>
@@ -74,42 +103,32 @@
 
             </div>
           </article>`
-    console.log("affichage effectué");
   }
-//-------------------------------------------
-// choix couleur dynamique
-//-------------------------------------------
-// définition des variables
+
   let choixCouleur = document.querySelector("#colors");
-// On écoute ce qu'il se passe dans #colors
-  choixCouleur.addEventListener("input", (ec) => {
-    let couleurProduit;
-    // on récupère la valeur de la cible de l'évenement dans couleur
-    couleurProduit = ec.target.value;
-    // on ajoute la couleur à l'objet panierClient
-    articleClient.couleur = couleurProduit;
-    //ça reset la couleur et le texte du bouton si il y a une action sur les inputs dans le cas d'une autre commande du même produit
-    document.querySelector("#addToCart").style.color = "white";
-    document.querySelector("#addToCart").textContent = "Ajouter au panier";
-    console.log(couleurProduit);
-  });
-//-------------------------------------------
-// choix quantité dynamique
-//--------------------------------------------
-// définition des variables
+  // choixCouleur.addEventListener("input", (ec) => {
+  //   let couleurProduit = ec.target.value;
+  //   articleClient.couleur = couleurProduit;
+  //   //ça reset la couleur et le texte du bouton si il y a une action sur les inputs dans le cas d'une autre commande du même produit
+  //   // document.querySelector("#addToCart").style.color = "white";
+  //   // document.querySelector("#addToCart").textContent = "Ajouter au panier";
+  //   console.log(couleurProduit);
+  // });
+  choixCouleur.addEventListener("input", (evt) => articleClient.changeColor(evt.target.value))
+
   let choixQuantité = document.querySelector('input[id="quantity"]');
-  let quantitéProduit;
-// On écoute ce qu'il se passe dans input[name="itemQuantity"]
-  choixQuantité.addEventListener("input", (eq) => {
-    // on récupère la valeur de la cible de l'évenement dans couleur
-    quantitéProduit = eq.target.value;
-    // on ajoute la quantité à l'objet panierClient
-    articleClient.quantité = quantitéProduit;
-    //ça reset la couleur et le texte du bouton si il y a une action sur les inputs dans le cas d'une autre commande du même produit
-    document.querySelector("#addToCart").style.color = "white";
-    document.querySelector("#addToCart").textContent = "Ajouter au panier";
-    console.log(quantitéProduit);
-  });
+  // choixQuantité.addEventListener("input", (eq) => {
+  //
+  // let quantitéProduit = eq.target.value;
+  // articleClient.quantité = quantitéProduit;
+  //
+  // document.querySelector("#addToCart").style.color = "white";
+  // document.querySelector("#addToCart").textContent = "Ajouter au panier";
+  // console.log(quantitéProduit);
+  // });
+  
+  choixQuantité.addEventListener("input", evt => articleClient.changeQuantity(evt.target.value))
+  
 //-------------------------------------------
 // conditions de validation du clic via le bouton ajouter au panier
 //-------------------------------------------
@@ -118,14 +137,7 @@
 // On écoute ce qu'il se passe sur le bouton #addToCart pour faire l'action :
   choixProduit.addEventListener("click", () => {
     //conditions de validation du bouton ajouter au panier
-    if (
-        // les valeurs sont créées dynamiquement au click, et à l'arrivée sur la page, tant qu'il n'y a pas d'action sur la couleur et/ou la quantité, c'est 2 valeurs sont undefined.
-        articleClient.quantité < 1 ||
-        articleClient.quantité > 100 ||
-        articleClient.quantité === undefined ||
-        articleClient.couleur === "" ||
-        articleClient.couleur === undefined
-    ) {
+    if (articleClient.cantAddToBasket()) {
       // joue l'alerte
       alert("Pour valider le choix de cet article, veuillez renseigner une couleur, et/ou une quantité valide entre 1 et 100");
       // si ça passe le controle
@@ -192,11 +204,18 @@
 //-------------------------------------------
 // fonction Panier qui ajuste la quantité si le produit est déja dans le tableau, sinon le rajoute si tableau il y a, ou créé le tableau avec un premier article choisi 
 //-------------------------------------------
+  
+  // this is both frenglish and a misnomer : this function should be called addToCart not Cart, as that's what it does
+  // and it's better to name things in english since the language (JS or many others) is in english.
   function Panier() {
     // variable qui sera ce qu'on récupère du local storage appelé panierStocké et qu'on a convertit en JSon
     produitsEnregistrés = JSON.parse(localStorage.getItem("panierStocké"));
     // si produitEnregistrés existe (si des articles ont déja été choisit et enregistrés par le client)
     if (produitsEnregistrés) {
+      
+      // This wont work : choix is a local variable, changing this one will not change the item in collection
+      // also updating localstorage with the while collection for every item within, is largely inefficient.
+      // to get such behavior we could use Array.map which returns a new array / produces a new item for every step of the iteration. 
       for (let choix of produitsEnregistrés) {
         //comparateur d'égalité des articles actuellement choisit et ceux déja choisit
         if (choix._id === id && choix.couleur === articleClient.couleur) {
