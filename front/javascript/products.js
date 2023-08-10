@@ -145,12 +145,6 @@ import {ErrorContext} from "./errorHelper";
         throw new Error(`invalid product passed: ${product._id}`)
       }
 
-      // N.B: article is the wrong HTML node for this (ul/li would have been better): article != item
-      // an article is meant for a central block of text
-      // here we've just a list of items, all of them have descriptions, but likely short ones
-  
-      // do not update the dom item by item, replace a block : less rerenders => more reactive UI
-      // especially if your list of items is lengthy (ok we'll probably paginate the results, still).
       return `<li>
               <div class="item__img">
                   <img src="${product.imageUrl}" alt="${product.altTxt}">
