@@ -19,18 +19,22 @@ import {ErrorContext} from "./errorHelper";
       .catch(errCtx.displayThenLogError);
 
   let articleClient = {
-    constructor(onColorChanged, onQuantityChanged) {
+    constructor(onColorChanged, onQuantityChanged, buttonHandler) {
       this.onColorChanged = onColorChanged
       this.onQuantityChanged = onQuantityChanged
+      this.buttonHandler = buttonHandler
+      this._id = id
     },
     
     changeColor(newColor) {
       this.color = newColor
       this.onColorChanged?.call(this, newColor)
+      this.buttonHandler.onChangeValidated()
     },
     changeQuantity(newQuantity) {
       this.quantity = newQuantity
       this.onQuantityChanged?.call(this, newQuantity)
+      this.buttonHandler.onChangeValidated()
     },
     
     cantAddToBasket() {
@@ -43,198 +47,168 @@ import {ErrorContext} from "./errorHelper";
     }
     
   };
-  articleClient._id = id;
-  
-  function renderProduct(productHtml) {
-    document.querySelector("section.item").innerHTML = productHtml
-    console.log("affichage effectué");
-  }
-  
-  function generateProductHtml(produit) {
-    // to log objects, use JSON.stringify
-    // to log anything don't break your logic flow : put logs close to the code they relate to,
-    // here in redering logic.
-    console.log(JSON.stringify(produit))
-    
-    // guard also called early return
-    if (id !== produit._id) {
-      return;
-    }
-    
-    // N.B: article is the wrong HTML node for this (ul/li would have been better): article != item
-    // an article is meant for a central block of text
-    // here we've just a list of items, all of them have descriptions, but likely short ones
-    
-    // do not update the dom item by item, replace a block : less rerenders => more reactive UI
-    // especially if your list of items is lengthy (ok we'll probably paginate the results, still).
-    return `<article>
-            <div class="item__img">
-                <img src="${produit.imageUrl}" alt="${produit.altTxt}">
-            </div>
-            <div class="item__content">
 
-              <div class="item__content__titlePrice">
-                <h1 id="title">${produit.name}</h1>
-                <p>Prix : <span id="price">${produit.price}</span>€</p>
-              </div>
+  let cartHandler = {
+    constructor() {
+      this.addCartBtn = "#addToCart"
+      this.registeredProducts= []
+    },
 
-              <div class="item__content__description">
-                <p class="item__content__description__title">Description :</p>
-                <p id="description">${produit.description}</p>
-              </div>
+    onChangeValidated() {
+      document.querySelector(this.addCartBtn).style.color = "white";
+      document.querySelector(this.addCartBtn).textContent = "Ajouter au panier";
+    },
 
-              <div class="item__content__settings">
-                <div class="item__content__settings__color">
-                  <label for="color-select">Choisir une couleur :</label>
-                  <select name="color-select" id="colors">
-                      ${produit.colors.map(color => `<option value="${color}">${color}</option>`).join('\r\n')}
-                  </select>
-                </div>
-
-                <div class="item__content__settings__quantity">
-                  <label for="itemQuantity">Nombre d'article(s) (1-100) :</label>
-                  <input type="number" name="itemQuantity" min="1" max="100" value="0" id="quantity">
-                </div>
-              </div>
-
-              <div class="item__content__addButton">
-                <button id="addToCart">Ajouter au panier</button>
-              </div>
-
-            </div>
-          </article>`
-  }
-
-  let choixCouleur = document.querySelector("#colors");
-  // choixCouleur.addEventListener("input", (ec) => {
-  //   let couleurProduit = ec.target.value;
-  //   articleClient.couleur = couleurProduit;
-  //   //ça reset la couleur et le texte du bouton si il y a une action sur les inputs dans le cas d'une autre commande du même produit
-  //   // document.querySelector("#addToCart").style.color = "white";
-  //   // document.querySelector("#addToCart").textContent = "Ajouter au panier";
-  //   console.log(couleurProduit);
-  // });
-  choixCouleur.addEventListener("input", (evt) => articleClient.changeColor(evt.target.value))
-
-  let choixQuantité = document.querySelector('input[id="quantity"]');
-  // choixQuantité.addEventListener("input", (eq) => {
-  //
-  // let quantitéProduit = eq.target.value;
-  // articleClient.quantité = quantitéProduit;
-  //
-  // document.querySelector("#addToCart").style.color = "white";
-  // document.querySelector("#addToCart").textContent = "Ajouter au panier";
-  // console.log(quantitéProduit);
-  // });
-  
-  choixQuantité.addEventListener("input", evt => articleClient.changeQuantity(evt.target.value))
-  
-//-------------------------------------------
-// conditions de validation du clic via le bouton ajouter au panier
-//-------------------------------------------
-// déclaration variable
-  let choixProduit = document.querySelector("#addToCart");
-// On écoute ce qu'il se passe sur le bouton #addToCart pour faire l'action :
-  choixProduit.addEventListener("click", () => {
-    //conditions de validation du bouton ajouter au panier
-    if (articleClient.cantAddToBasket()) {
-      // joue l'alerte
-      alert("Pour valider le choix de cet article, veuillez renseigner une couleur, et/ou une quantité valide entre 1 et 100");
-      // si ça passe le controle
-    } else {
-      // joue panier
-      Panier();
-      console.log("clic effectué");
-      //effet visuel d'ajout de produit
+    _showProductAdded() {
       document.querySelector("#addToCart").style.color = "rgb(0, 205, 0)";
       document.querySelector("#addToCart").textContent = "Produit ajouté !";
-    }
-  });
-//-------------------------------------------
-// Déclaration des tableaux utiles 
-//-------------------------------------------
-// déclaration tableau qui sera le 1er, unique et destiné à initialiser le panier
-  let choixProduitClient = [];
-// déclaration tableau qui sera ce qu'on récupère du local storage appelé panierStocké et qu'on convertira en JSon (importance dans Panier())
-  let produitsEnregistrés = [];
-// déclaration tableau qui sera un choix d'article/couleur non effectué donc non présent dans le panierStocké
-  let produitsTemporaires = [];
-// déclaration tableau qui sera la concaténation des produitsEnregistrés et de produitsTemporaires
-  let produitsAValider = [];
-///-------------------------------------------
-// fonction ajoutPremierProduit qui ajoute l'article choisi dans le tableau vierge
-//-------------------------------------------
-  function ajoutPremierProduit() {
-    console.log(produitsEnregistrés);
-    //si produitsEnregistrés est null c'est qu'il n'a pas été créé
-    if (produitsEnregistrés === null) {
-      // pousse le produit choisit dans choixProduitClient
-      choixProduitClient.push(articleClient);
-      console.log(articleClient);
-      // dernière commande, envoit choixProduitClient dans le local storage sous le nom de panierStocké de manière JSON stringifié
-      return (localStorage.panierStocké = JSON.stringify(choixProduitClient));
-    }
-  }
-//-------------------------------------------
-// fonction ajoutAutreProduit qui ajoute l'article dans le tableau non vierge et fait un tri
-///------------------------------------------- 
-  function ajoutAutreProduit() {
-    // vide/initialise produitsAValider pour recevoir les nouvelles données
-    produitsAValider = [];
-    // pousse le produit choisit dans produitsTemporaires
-    produitsTemporaires.push(articleClient);
-    // combine produitsTemporaires et/dans produitsEnregistrés, ça s'appele produitsAValider
-    // autre manière de faire: produitsAValider = produitsEnregistrés.concat(produitsTemporaires);
-    produitsAValider = [...produitsEnregistrés, ...produitsTemporaires];
-    //fonction pour trier et classer les id puis les couleurs https://www.azur-web.com/astuces/javascript-trier-tableau-objet
-    produitsAValider.sort(function triage(a, b) {
-      if (a._id < b._id) return -1;
-      if (a._id > b._id) return 1;
-      if (a._id = b._id){
-        if (a.couleur < b.couleur) return -1;
-        if (a.couleur > b.couleur) return 1;
-      }
-      return 0;
-    });
-    // vide/initialise produitsTemporaires maintenant qu'il a été utilisé
-    produitsTemporaires = [];
-    // dernière commande, envoit produitsAValider dans le local storage sous le nom de panierStocké de manière JSON stringifié
-    return (localStorage.panierStocké = JSON.stringify(produitsAValider));
-  }
-//-------------------------------------------
-// fonction Panier qui ajuste la quantité si le produit est déja dans le tableau, sinon le rajoute si tableau il y a, ou créé le tableau avec un premier article choisi 
-//-------------------------------------------
-  
-  // this is both frenglish and a misnomer : this function should be called addToCart not Cart, as that's what it does
-  // and it's better to name things in english since the language (JS or many others) is in english.
-  function Panier() {
-    // variable qui sera ce qu'on récupère du local storage appelé panierStocké et qu'on a convertit en JSon
-    produitsEnregistrés = JSON.parse(localStorage.getItem("panierStocké"));
-    // si produitEnregistrés existe (si des articles ont déja été choisit et enregistrés par le client)
-    if (produitsEnregistrés) {
-      
-      // This wont work : choix is a local variable, changing this one will not change the item in collection
-      // also updating localstorage with the while collection for every item within, is largely inefficient.
-      // to get such behavior we could use Array.map which returns a new array / produces a new item for every step of the iteration. 
-      for (let choix of produitsEnregistrés) {
-        //comparateur d'égalité des articles actuellement choisit et ceux déja choisit
-        if (choix._id === id && choix.couleur === articleClient.couleur) {
-          //information client
-          alert("RAPPEL: Vous aviez déja choisit cet article.");
-          // on modifie la quantité d'un produit existant dans le panier du localstorage
-          //définition de additionQuantité qui est la valeur de l'addition de l'ancienne quantité parsée et de la nouvelle parsée pour le même produit
-          let additionQuantité = parseInt(choix.quantité) + parseInt(quantitéProduit);
-          // on convertit en JSON le résultat précédent dans la zone voulue
-          choix.quantité = JSON.stringify(additionQuantité);
-          // dernière commande, on renvoit un nouveau panierStocké dans le localStorage
-          return (localStorage.panierStocké = JSON.stringify(produitsEnregistrés));
+    },
+
+    _addOtherProduct() {
+      const productsToValidate = [...this.registeredProducts, articleClient].sort(function triage(a, b) {
+        if (a._id < b._id) return -1;
+        if (a._id > b._id) return 1;
+        if (a._id === b._id){
+          if (a.couleur < b.couleur) return -1;
+          if (a.couleur > b.couleur) return 1;
         }
+        return 0;
+      });
+      // dernière commande, envoit produitsAValider dans le local storage sous le nom de panierStocké de manière JSON stringifié
+      localStorage.panierStocké = JSON.stringify(productsToValidate)
+    },
+
+    _addFirstProduct() {
+      let choixProduitClient = [];
+      console.log(this.registeredProducts);
+      if (this.registeredProducts.length === 0) {
+        choixProduitClient.push(articleClient);
+        console.log(articleClient);
+        // dernière commande, envoit choixProduitClient dans le local storage sous le nom de panierStocké de manière JSON stringifié
+        localStorage.panierStocké = JSON.stringify(choixProduitClient)
       }
-      // appel fonction ajoutAutreProduit si la boucle au dessus ne retourne rien donc n'a pas d'égalité
-      return ajoutAutreProduit();
+    },
+
+    _addToKnownProduct(product) {
+      if (product._id === id && product.couleur === articleClient.couleur) {
+        let additionQuantité = parseInt(product.quantité) + parseInt(quantitéProduit);
+        product.quantité = JSON.stringify(additionQuantité);
+
+        return { product, handled: true }
+      }
+    },
+
+    _saveCart() {
+      let currentlyRegisteredProducts = JSON.parse(localStorage.getItem("panierStocké"));
+      if ((currentlyRegisteredProducts?.length ?? 0) > 0) {
+        let productHandled = false
+        this._registeredProducts = this._registeredProducts.map((product) => {
+          //comparateur d'égalité des articles actuellement choisit et ceux déja choisit
+          const {handled, product} = this._addToKnownProduct(product)
+          productHandled = handled
+          return product
+        })
+        if(productHandled) {
+          localStorage.panierStocké = JSON.stringify(produitsEnregistrés)
+          alert("RAPPEL: Vous aviez déja choisit cet article.");
+          return;
+        }
+        this._addOtherProduct();
+        return
+      }
+      this._addFirstProduct();
+      console.log("clic effectué");
+    },
+
+    addToCart(articleClient) {
+      if (articleClient.cantAddToBasket()) {
+        alert("Pour valider le choix de cet article, veuillez renseigner une couleur, et/ou une quantité valide entre 1 et 100");
+      } else {
+        this._saveCart()
+        this._showProductAdded()
+      }
     }
-    // appel fonction ajoutPremierProduit si produitsEnregistrés n'existe pas
-    return ajoutPremierProduit();
   }
-//--------------------------------------------------------------------------------------------------
+  
+  let component = {
+
+    init(cartHandler, articleClient) {
+      this.cartHandler = cartHandler
+      this.articleClient = articleClient
+    },
+
+    _generateProductHtml(product) {
+      console.log(JSON.stringify(product))
+  
+      // guard also called early return
+      if (id !== product._id) {
+        throw new Error(`invalid product passed: ${product._id}`)
+      }
+
+      // N.B: article is the wrong HTML node for this (ul/li would have been better): article != item
+      // an article is meant for a central block of text
+      // here we've just a list of items, all of them have descriptions, but likely short ones
+  
+      // do not update the dom item by item, replace a block : less rerenders => more reactive UI
+      // especially if your list of items is lengthy (ok we'll probably paginate the results, still).
+      return `<li>
+              <div class="item__img">
+                  <img src="${product.imageUrl}" alt="${product.altTxt}">
+              </div>
+              <div class="item__content">
+  
+                <div class="item__content__titlePrice">
+                  <h1 id="title">${product.name}</h1>
+                  <p>Prix : <span id="price">${product.price}</span>€</p>
+                </div>
+  
+                <div class="item__content__description">
+                  <p class="item__content__description__title">Description :</p>
+                  <p id="description">${product.description}</p>
+                </div>
+  
+                <div class="item__content__settings">
+                  <div class="item__content__settings__color">
+                    <label for="color-select">Choisir une couleur :</label>
+                    <select name="color-select" id="colors">
+                        ${product.colors.map(color => `<option value="${color}">${color}</option>`).join('\r\n')}
+                    </select>
+                  </div>
+  
+                  <div class="item__content__settings__quantity">
+                    <label for="itemQuantity">Nombre d'article(s) (1-100) :</label>
+                    <input type="number" name="itemQuantity" min="1" max="100" value="0" id="quantity">
+                  </div>
+                </div>
+  
+                <div class="item__content__addButton">
+                  <button id="addToCart">Ajouter au panier</button>
+                </div>
+  
+              </div>
+            </li>`
+    },
+    
+    render(produit) {
+      const productHtml = this._generateProductHtml(produit)
+      document.querySelector("section.item").innerHTML = productHtml
+      console.log("affichage effectué");
+    },
+    
+    listen() {
+      let choixCouleur = document.querySelector("#colors");
+      choixCouleur.addEventListener("input", e => this.articleClient.changeColor(e.target.value.trim()))
+
+      choixCouleur.addEventListener("input", (evt) => this.articleClient.changeColor(evt.target.value))
+      let choixQuantité = document.querySelector('input[id="quantity"]');
+      choixQuantité.addEventListener("input", evt => this.articleClient.changeQuantity(evt.target.value))
+
+      let choixProduit = document.querySelector("#addToCart");
+      choixProduit.addEventListener("click", this.cartHandler.addToCart);
+    }
+  }
+  
+
+  component.init(cartHandler, articleClient)
+  return component
 })()
